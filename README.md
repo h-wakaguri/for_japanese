@@ -17,8 +17,9 @@ Web browser: Edge (V40 above), Google Chrome (V61 above) or Firefox (V56 above).
 ### 使い方
 ####  ZIPのダウンロード:
 
-CodeのDownload ZIPから for_japanese-master.zip をダウンロードします。
+右上[Code]の「Download ZIP」から for_japanese-master.zip をダウンロードします。
 ファイルを解凍、展開後、boukeshiホルダの中の index.htm をお使いのWebブラウザで開きます。
+
 ![HTML初期画像](boukeshi/screenshot.jpg)
 
 デフォルトではユーザが先手になっていますので、消したい場所をドラッグすると青い線で棒を消すことができます。
