@@ -19,11 +19,11 @@
 		<script src="boukeshi_graph.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			var bg;
-			let bordSize = [250, 450];
+			let boardSize = [250, 450];
 			
 			onload = function() {
 				var stage = new Array(1, 2, 3, 4, 5);
-				var option = {"pitch": 6, size: bordSize};
+				var option = {"pitch": 6, size: boardSize};
 				bg = new BoukeshiGraph("boukeshi", stage, document.f1.com_st.checked, option);
 			};
 			
@@ -39,7 +39,7 @@
 				}
 				var stage = bg.getStage();
 				var bpitch = bg.getPitch();
-				var option = {"pitch": bpitch, size: bordSize};
+				var option = {"pitch": bpitch, size: boardSize};
 				bg = new BoukeshiGraph("boukeshi", stage, document.f1.com_st.checked, option);
 				
 				return true;
@@ -53,7 +53,7 @@
 				}
 				var stage = bg.getStage();
 				var bpitch = bg.getPitch();
-				var option = {"pitch": bpitch, size: bordSize};
+				var option = {"pitch": bpitch, size: boardSize};
 				bg = new BoukeshiStageMaker("boukeshi", stage, option);
 				
 				return true;
