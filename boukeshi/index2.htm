@@ -1,0 +1,78 @@
+<!DOCTYPE html> 
+<html lang="ja"> 
+	<head> 
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"> 
+		<style type="text/css"> 
+		canvas {
+			border: solid 3px #000;
+		}
+		</style> 
+		<script src="boukeshi.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			var boukeshi;
+			var str_log = "<h2>ログ情報</h2>";
+			onload = function() {
+				var bous = new Array(1, 2, 3, 4, 5);
+				boukeshi = new Boukeshi(bous);
+				var str = "<pre>" + boukeshi.getString() + "</pre>";
+				str_log += str;
+				document.getElementById("game").innerHTML = "あなたの番です。" + str;
+				document.getElementById("log").innerHTML = str_log;
+				document.f1.t1.focus();
+			};
+			
+			var erase = function() {
+				var dan, kara, kosuu;
+				dan = kara = kosuu = 0;
+				var t1_val = document.f1.t1.value;
+				var e_place = t1_val.split("-");
+				if(e_place.length != 3) {
+					alert("「" + e_place + "」という消し方はできません");
+				} else {
+					if(boukeshi.eraseBar(e_place[0] - 1, e_place[1] - 1, e_place[2])) {
+						var str = "あなたは、" + e_place[0] + "段目の左から"
+							+ e_place[1] + "個目から、" + e_place[2] + "個消去しました。<br />";
+						if(boukeshi.isEnd()) {
+							str += "コンピュータの勝ちです。";
+							str += "<br /><pre>" + boukeshi.getString() + "</pre>";
+						} else {
+							//コンピュータの手番
+							boukeshi.autoEraseBar();
+							//コンピューターの棒の消去場所の取得
+							var comEr = boukeshi.getNowErase();
+							str += "コンピューターは、" + (comEr[0] + 1) + "段目の左から"
+								+ (comEr[1] + 1) + "個目から、" + comEr[2] + "個消去しました。";
+							if(boukeshi.isEnd()) {
+								str += "<br />あなたの勝ちです。";
+							}
+							str += "<br /><pre>" + boukeshi.getString() + "</pre>";
+						}
+						document.getElementById("game").innerHTML = str;
+						str_log += str;
+						document.getElementById("log").innerHTML = str_log;
+					} else {
+						alert("その消し方はできません。（" + e_place + "）");
+					}
+				}
+				document.f1.t1.value = "";
+				document.f1.t1.focus();
+				
+			}
+		</script>
+
+		<title></title> 
+	</head> 
+ 	<body> 
+		<div id="game"></div>
+		<p> 
+			<form name="f1">
+				<div>何列目の-左から何番目から-何個消すか
+					(例： 1-1-5: 1番上の1番左から5個消す)</div>
+				<input type="text" name="t1" />
+				<input type="submit" value="OK" onclick="erase(); return false;">
+			</form>
+		</p>
+		<hr />
+		<div id="log"></div>
+ 	</body> 
+</html> 
