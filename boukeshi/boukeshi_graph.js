@@ -95,7 +95,7 @@ var BoukeshiGraph = function(docEl, stage, comStartFlg, option) {
 	}
 	
 	if(!comStartFlg) {
-		var str = "<h2>やり方</h2><ul>";
+		var str = "<h2>遊び方</h2><ul>";
 		str += "<li>最後の線を消したほうが負けです</li>";
 		str += "<li>消したい位置をドラッグすると青線が引けます</li>";
 		str += "<li>コンピューターは赤線で最良手を打ってきます</li>";
