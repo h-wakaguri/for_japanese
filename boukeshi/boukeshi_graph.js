@@ -3,10 +3,11 @@
 // 2012/08/26 Updated(タッチパネル対応)
 // 2012/08/31 Updated(コンピュータが計算している間にプレイヤーが消去できてしまう不具合を修正)
 // 2013/06/15 Updated(Chrome27.0で正常に動かなくなる不具合を修正)
+// 2022/04/24 アンドロイド上のブラウザでも操作できるように修正
 
 var BoukeshiGraphRoot = function(docEl, stage, option) {
 	this.stage = stage;
-	this.pich = (option && option["pich"])? option["pich"]: 5;
+	this.pitch = (option && option["pitch"])? option["pitch"]: 5;
 	this.spanX = 3;
 	this.spanY = 14;
 	this.canvW = (option && option["size"])? option["size"][0]: 250;
@@ -31,8 +32,15 @@ var BoukeshiGraphRoot = function(docEl, stage, option) {
 	this.getXY = function(e) {
 		var xy = new Array(2);
 		var rect = e.target.getBoundingClientRect();
-		xy[0] = e.clientX - rect.left;
-		xy[1] = e.clientY - rect.top;
+		var rectX = rect.left + window.scrollX;
+		var rectY = rect.top + window.scrollY;
+		//touchendのときは、changedTouchesが使われ、touchmove、touchstartのときは、touchesを使う
+		var pX = (e.pageX !== undefined)? e.pageX: (e.changedTouches)? e.changedTouches[0].pageX: 
+			e.touches[0].pageX;
+		var pY = (e.pageY !== undefined)? e.pageY: (e.changedTouches)? e.changedTouches[0].pageY: 
+			e.touches[0].pageY;
+		xy[0] = pX - rectX;
+		xy[1] = pY - rectY;
 		
 		return xy;
 	}
@@ -43,12 +51,12 @@ var BoukeshiGraphRoot = function(docEl, stage, option) {
 		return true;
 	}
 	
-	this.getPich = function() {
-		return this.pich;
+	this.getPitch = function() {
+		return this.pitch;
 	}
 	
-	this.setPich = function(pich) {
-		this.pich = pich;
+	this.setPitch = function(pitch) {
+		this.pitch = pitch;
 		this.paint();
 	}
 	
@@ -109,17 +117,13 @@ var BoukeshiGraph = function(docEl, stage, comStartFlg, option) {
 	this.canvas.addEventListener("mouseup", mouseUpListner, true);
 	
 	this.canvas.addEventListener("touchmove", function(e) {
-		e.preventDefault();
-		var touch = e.changedTouches[0];
-		mouseMoveListner(touch);
+		mouseMoveListner(e);
 	}, true);
 	this.canvas.addEventListener("touchstart", function(e) {
-		var touch = e.touches[0];
-		mouseDownListner(touch);
+		mouseDownListner(e);
 	}, true);
 	this.canvas.addEventListener("touchend", function(e) {
-		var touch = e.changedTouches[0];
-		mouseUpListner(touch);
+		mouseUpListner(e);
 	}, true);
 	
 	this.isCanErase = function(startX, endX, numY) {
@@ -148,12 +152,12 @@ var BoukeshiGraph = function(docEl, stage, comStartFlg, option) {
 		var xy = m.getXY(e);
 		var xAr;
 		var yAr = Math.floor((xy[1] - (m.canvH / 2 - m.boul.length 
-			/ 2 * m.pich * m.spanY)) / (m.pich * m.spanY));
+			/ 2 * m.pitch * m.spanY)) / (m.pitch * m.spanY));
 		
 		if(0 <= yAr && yAr < m.boul.length) {
 			var bouNum = m.boul[yAr].length;
-			xAr = Math.floor((xy[0] - (m.canvW / 2 - m.pich / 2 
-				- (m.pich * m.spanX * (bouNum - 1 / 2)))) / (m.pich * m.spanX * 2));
+			xAr = Math.floor((xy[0] - (m.canvW / 2 - m.pitch / 2 
+				- (m.pitch * m.spanX * (bouNum - 1 / 2)))) / (m.pitch * m.spanX * 2));
 			
 			if(m.isCanErase(xAr, xAr, yAr)) {
 				var ar = new Array(xAr, yAr);
@@ -174,14 +178,18 @@ var BoukeshiGraph = function(docEl, stage, comStartFlg, option) {
 				var endX = (m.mouseStartReg[0] > ar[0])? m.mouseStartReg[0]: ar[0];
 				if(m.isCanErase(startX, endX, ar[1])) {
 					var bouNum = m.boul[ar[1]].length;
-					var x1 = m.canvW / 2 - m.pich / 2 - (m.pich * m.spanX * (bouNum - 1)) 
-						+ startX * m.pich * m.spanX * 2 - m.pich * m.spanX + m.pich / 2;
-					var y1 = m.canvH / 2 - m.boul.length / 2 * m.pich * m.spanY 
-						+ m.pich * 10 / 2 - m.pich / 2 + ar[1] * m.pich * m.spanY;
+					var x1 = m.canvW / 2 - m.pitch / 2 - (m.pitch * m.spanX * (bouNum - 1)) 
+						+ startX * m.pitch * m.spanX * 2 - m.pitch * m.spanX + m.pitch / 2;
+					var y1 = m.canvH / 2 - m.boul.length / 2 * m.pitch * m.spanY 
+						+ m.pitch * 10 / 2 - m.pitch / 2 + ar[1] * m.pitch * m.spanY;
+					var y2 = m.canvH / 2 - m.boul.length / 2 * m.pitch * m.spanY 
+						+ ar[1] * m.pitch * m.spanY;
 					
+					m.cc.fillStyle = "rgba(100, 100, 255, 0.5)";
+					m.cc.fillRect(x1, y2, m.pitch * m.spanX * 2 * (endX - startX + 1), m.pitch * 10);
 					//m.cc.fillText("TEST：" + ar[0] + ", " + ar[1], 5, 36);
-					m.cc.fillStyle = "rgb(100, 100, 255)";
-					m.cc.fillRect(x1, y1, m.pich * m.spanX * 2 * (endX - startX + 1), m.pich);
+					m.cc.fillStyle = "rgba(100, 100, 255, 1)";
+					m.cc.fillRect(x1, y1, m.pitch * m.spanX * 2 * (endX - startX + 1), m.pitch);
 				} else {
 					m.mouseStartReg = null;
 				}
@@ -197,22 +205,25 @@ var BoukeshiGraph = function(docEl, stage, comStartFlg, option) {
 		var ar = m.getArrayReg(e);
 		if(ar != null) {
 			var bouNum = m.boul[ar[1]].length;
-			var x1 = m.canvW / 2 - m.pich / 2 - (m.pich * m.spanX * (bouNum - 1)) 
-				+ ar[0] * m.pich * m.spanX * 2 - m.pich * m.spanX + m.pich / 2;
-			var y1 = m.canvH / 2 - m.boul.length / 2 * m.pich * m.spanY 
-				+ m.pich * 10 / 2 - m.pich / 2 + ar[1] * m.pich * m.spanY;
+			var x1 = m.canvW / 2 - m.pitch / 2 - (m.pitch * m.spanX * (bouNum - 1)) 
+				+ ar[0] * m.pitch * m.spanX * 2 - m.pitch * m.spanX + m.pitch / 2;
+			var y1 = m.canvH / 2 - m.boul.length / 2 * m.pitch * m.spanY 
+				+ m.pitch * 10 / 2 - m.pitch / 2 + ar[1] * m.pitch * m.spanY;
+			var y2 = m.canvH / 2 - m.boul.length / 2 * m.pitch * m.spanY 
+				+ ar[1] * m.pitch * m.spanY;
 			
 			m.paint();
 			
-			//m.cc.fillText("TEST：" + ar[0] + ", " + ar[1], 5, 36);
-			
-			m.cc.fillStyle = "rgb(100, 100, 255)";
-			m.cc.fillRect(x1, y1, m.pich * m.spanX * 2, m.pich);
+			m.cc.fillStyle = "rgba(100, 100, 255, 0.5)";
+			m.cc.fillRect(x1, y2, m.pitch * m.spanX * 2, m.pitch * 10);
+			m.cc.fillStyle = "rgba(100, 100, 255, 1)";
+			m.cc.fillRect(x1, y1, m.pitch * m.spanX * 2, m.pitch);
 			m.mouseStartReg = ar;
 		}
 	}
 	
 	function mouseUpListner(e) {
+		e.preventDefault();
 		if(m.mouseStartReg != null) {
 			var ar = m.getArrayReg(e);
 			if(ar != null && m.mouseStartReg[1] == ar[1]) {
@@ -254,19 +265,19 @@ BoukeshiGraph.prototype = {
 		for(var i = 0; i < this.boul.length; i ++) {
 			var bouNum = this.boul[i].length;
 			for(var j = 0; j < bouNum; j ++) {
-				var x1 = centerX - this.pich / 2 - (this.pich * this.spanX * (bouNum - 1)) 
-					+ j * this.pich * this.spanX * 2;
-				var y1 = centerY - this.boul.length / 2 * this.pich * this.spanY 
-					+ i * this.pich * this.spanY;
+				var x1 = centerX - this.pitch / 2 - (this.pitch * this.spanX * (bouNum - 1)) 
+					+ j * this.pitch * this.spanX * 2;
+				var y1 = centerY - this.boul.length / 2 * this.pitch * this.spanY 
+					+ i * this.pitch * this.spanY;
 				
 				this.cc.fillStyle = "rgb(0, 0, 0)";
-				this.cc.fillRect(x1, y1, this.pich, this.pich * 10);
+				this.cc.fillRect(x1, y1, this.pitch, this.pitch * 10);
 				if(this.boul[i][j]) {
-					var x2 = x1 - this.pich * this.spanX + this.pich / 2;
-					var y2 = y1 + this.pich * 10 / 2 - this.pich / 2;
+					var x2 = x1 - this.pitch * this.spanX + this.pitch / 2;
+					var y2 = y1 + this.pitch * 10 / 2 - this.pitch / 2;
 					this.cc.fillStyle = (this.boul[i][j] == 1)? "rgb(200, 0, 0)": 
 						(this.boul[i][j] == 2)? "rgb(0, 0, 200)": "rgb(255, 100, 100)";
-					this.cc.fillRect(x2, y2, this.pich * this.spanX * 2, this.pich);
+					this.cc.fillRect(x2, y2, this.pitch * this.spanX * 2, this.pitch);
 					if(recolorNum && this.boul[i][j] == 3) this.boul[i][j] = recolorNum;
 				}
 			}
@@ -334,25 +345,21 @@ var BoukeshiStageMaker = function(docEl, stage, option) {
 	this.canvas.addEventListener("mouseup", mouseUpListner, true);
 	
 	this.canvas.addEventListener("touchmove", function(e) {
-		e.preventDefault();
-		var touch = e.changedTouches[0];
-		mouseMoveListner(touch);
+		mouseMoveListner(e);
 	}, true);
 	this.canvas.addEventListener("touchstart", function(e) {
-		var touch = e.touches[0];
-		mouseDownListner(touch);
+		mouseDownListner(e);
 	}, true);
 	this.canvas.addEventListener("touchend", function(e) {
-		var touch = e.changedTouches[0];
-		mouseUpListner(touch);
+		mouseUpListner(e);
 	}, true);
 	
 	this.getArrayReg = function(e) {
 		var xy = m.getXY(e);
 		var xAr;
-		var yAr = Math.floor((xy[1] - m.indentY) / (m.pich * m.spanY));
+		var yAr = Math.floor((xy[1] - m.indentY) / (m.pitch * m.spanY));
 		if(0 <= yAr && yAr <= m.stage.length) {
-			xAr = Math.abs(Math.floor((xy[0] - m.canvW / 2) / (m.pich * m.spanX)));
+			xAr = Math.abs(Math.floor((xy[0] - m.canvW / 2) / (m.pitch * m.spanX)));
 			
 			return new Array(xAr, yAr);
 		}
@@ -366,11 +373,11 @@ var BoukeshiStageMaker = function(docEl, stage, option) {
 				if(m.stage.length == m.mouseYpos) {
 					m.paint(0);
 					for(var j = 0; j <= ar[0]; j ++) {
-						var x1 = m.canvW / 2 - m.pich / 2 - (m.pich * m.spanX * (ar[0])) 
-							+ j * m.pich * m.spanX * 2;
-						var y1 = m.indentY + ar[1] * m.pich * m.spanY;
+						var x1 = m.canvW / 2 - m.pitch / 2 - (m.pitch * m.spanX * (ar[0])) 
+							+ j * m.pitch * m.spanX * 2;
+						var y1 = m.indentY + ar[1] * m.pitch * m.spanY;
 						m.cc.fillStyle = "rgb(0, 0, 0)";
-						m.cc.fillRect(x1, y1, m.pich, m.pich * 10);
+						m.cc.fillRect(x1, y1, m.pitch, m.pitch * 10);
 					}
 				} else {
 					m.paint(1);
@@ -393,11 +400,11 @@ var BoukeshiStageMaker = function(docEl, stage, option) {
 				m.mouseYpos = ar[1];
 				m.paint(0);
 				for(var j = 0; j <= ar[0]; j ++) {
-					var x1 = m.canvW / 2 - m.pich / 2 - (m.pich * m.spanX * (ar[0])) 
-						+ j * m.pich * m.spanX * 2;
-					var y1 = m.indentY + ar[1] * m.pich * m.spanY;
+					var x1 = m.canvW / 2 - m.pitch / 2 - (m.pitch * m.spanX * (ar[0])) 
+						+ j * m.pitch * m.spanX * 2;
+					var y1 = m.indentY + ar[1] * m.pitch * m.spanY;
 					m.cc.fillStyle = "rgb(0, 0, 0)";
-					m.cc.fillRect(x1, y1, m.pich, m.pich * 10);
+					m.cc.fillRect(x1, y1, m.pitch, m.pitch * 10);
 				}
 			} else if(ar[1] == m.stage.length - 1) {
 				m.mouseYpos = ar[1];
@@ -432,13 +439,13 @@ BoukeshiStageMaker.prototype = {
 		for(var i = 0; i < this.stage.length; i ++) {
 			var bouNum = this.stage[i];
 			for(var j = 0; j < bouNum; j ++) {
-				var x1 = this.canvW / 2 - this.pich / 2 - (this.pich * this.spanX * (bouNum - 1)) 
-					+ j * this.pich * this.spanX * 2;
-				var y1 = this.indentY + i * this.pich * this.spanY;
+				var x1 = this.canvW / 2 - this.pitch / 2 - (this.pitch * this.spanX * (bouNum - 1)) 
+					+ j * this.pitch * this.spanX * 2;
+				var y1 = this.indentY + i * this.pitch * this.spanY;
 				this.cc.fillStyle = (eraseNum && i >= this.stage.length - eraseNum)? 
 					"rgb(200, 200, 200)": "rgb(150, 150, 150)";
 				
-				this.cc.fillRect(x1, y1, this.pich, this.pich * 10);
+				this.cc.fillRect(x1, y1, this.pitch, this.pitch * 10);
 			}
 		}
 	},
