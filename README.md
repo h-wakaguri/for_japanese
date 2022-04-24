@@ -1,33 +1,31 @@
-日本語向けプログラム
+棒消しゲーム
 ====
 
-雑多なも
+ニムゲームの一種、棒消しゲームの必勝プログラムをjavascriptで作りました
 
 ## 始め方
 
 ### デモのページ
 
-[Demo](http://mession.mydns.jp/~wakaguri/ngs_js/)
+[Demo](http://mession.mydns.jp/~gigaho/bokesi/js_boukeshi/)
 
 ### 実行環境
 
 Web browser: Edge (V40 above), Google Chrome (V61 above) or Firefox (V56 above).  
-(JavaScript Generator supported web browser required)
 
 ---
 ### 使い方
-####  作成中:
+####  ZIPのダウンロード:
 
-なにがし
-
----
-#### 作成中
-ふにゃふにゃ云々
----
-
-ほげ
+CodeのDownload ZIPから for_japanese-master.zip をダウンロードします。
+ファイルを解凍、展開後、boukeshiホルダの中の index.htm をお使いのWebブラウザで開きます。
+![HTML初期画像](boukeshi/screenshot.jpg)
+デフォルトではユーザが先手になっていますので、消したい場所をドラッグすると青い線で棒を消すことができます。
+続いてPCが最善手を使って赤い棒で消してきます。交互にすべての棒が消えるまでゲームを続けます。
+最後の棒を消したほうが負けです。
 
 ---
+
 ### ライセンス
 
 This project is licensed under the [MIT](https://raw.githubusercontent.com/b4b4r07/dotfiles/master/doc/LICENSE-MIT.txt) License
