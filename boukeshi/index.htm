@@ -19,17 +19,17 @@
 		<script src="boukeshi_graph.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			var bg;
-			let boardSize = [250, 450];
+			let bordSize = [250, 450];
 			
 			onload = function() {
 				var stage = new Array(1, 2, 3, 4, 5);
-				var option = {"pitch": 6, size: boardSize};
+				var option = {"pitch": 6, size: bordSize};
 				bg = new BoukeshiGraph("boukeshi", stage, document.f1.com_st.checked, option);
 			};
 			
 			var changePitch = function(pitch) {
 				bg.setPitch(pitch)
-			}
+			};
 			
 			var restart = function() {
 				if(!bg.isEnd()) {
@@ -39,11 +39,11 @@
 				}
 				var stage = bg.getStage();
 				var bpitch = bg.getPitch();
-				var option = {"pitch": bpitch, size: boardSize};
+				var option = {"pitch": bpitch, size: bordSize};
 				bg = new BoukeshiGraph("boukeshi", stage, document.f1.com_st.checked, option);
 				
 				return true;
-			}
+			};
 			
 			var create = function() {
 				if(!bg.isEnd()) {
@@ -53,27 +53,55 @@
 				}
 				var stage = bg.getStage();
 				var bpitch = bg.getPitch();
-				var option = {"pitch": bpitch, size: boardSize};
+				var option = {"pitch": bpitch, size: bordSize};
 				bg = new BoukeshiStageMaker("boukeshi", stage, option);
 				
 				return true;
-			}
+			};
 			
+			let rndstage = function() {
+				if(!bg.isEnd()) {
+					if(!confirm("ゲームを中断してよろしいですか？")) {
+						return false;
+					}
+				}
+				
+				//let stepNum = Math.floor(Math.random() * 7) + 4;
+				let stepNum = Math.floor(Math.random() * 3) + 4;
+				let stage = [];
+				for(let i = 0; i < stepNum; i ++) {
+					//stage.push(Math.floor(Math.random() * 16) + 1);
+					stage.push(Math.floor(Math.random() * 8) + 1);
+				}
+				stage.sort((a, b) => a - b);
+				let sElm = document.getElementById("barsize");
+				let lng1 = 6 - 0.3 * stage.length;
+				let lng2 = 5.4 - 0.2 * Math.max(...stage);
+				let barSize = (lng1 < lng2)? lng1: lng2;
+				
+				sElm.value = barSize;
+				changePitch(barSize);
+				let bpitch = bg.getPitch();
+				let option = {"pitch": bpitch, size: bordSize};
+				bg = new BoukeshiGraph("boukeshi", stage, document.f1.com_st.checked, option);
+				
+				return true;
+			};
 		</script>
-
+		
 		<title>HTML5 棒消しゲーム</title> 
 	</head> 
 	<body bgcolor="#aadd99" alink="#0000ff" link="#005555" vlink="#005555"> 
 		<h1>棒消しゲーム (HTML5版)</h1>
 		<div>
-			<div>ブラウザによっては動作しない可能性があります</div>
+			<div>ブラウザによっては動作しない場合があります</div>
 		</div>
 		<div id="boukeshi"></div> 
 		<hr />
 		
 		<form name="f1">
 			<div>
-				<input type="range" value="6" min="1" max="15" step="0.1" onchange="changePitch(this.value)">
+				<input type="range" value="6" min="1" max="15" step="0.1" onchange="changePitch(this.value)" id="barsize">
 			</div>
 			<div>
 				<div>
@@ -81,6 +109,7 @@
 					<input type="button" value="Restart" onclick="restart()" />
 				</div>
 				<input type="button" value="Create Stage" onclick="create()" />
+				<input type="button" value="Random Stage" onclick="rndstage()" />
 			</div>
 		</form>
 		<hr />
